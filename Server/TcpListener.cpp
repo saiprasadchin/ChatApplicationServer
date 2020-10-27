@@ -7,6 +7,11 @@ void TcpListener::Run()
 {
 	char buffer[1024];
     SOCKET listening = CreateSocket();
+    pthread_t tid;
+	while (true) {
+		Client* client = WaitForConnection(listening);
+	    pthread_create(&tid, NULL, *m_handle_client_ptr, (void*)client);		
+	}
     close(listening);
 }
 
@@ -36,3 +41,18 @@ SOCKET TcpListener::CreateSocket()
 	return listening;
 }
 
+Client* TcpListener::WaitForConnection(SOCKET listenfd)
+{
+    struct sockaddr_in client_addr;
+	socklen_t clilen = sizeof(client_addr);
+	SOCKET connfd;
+    ErrorCheck(connfd = accept(listenfd, (struct sockaddr*)&client_addr, &clilen),
+                "ERROR: accept failed");
+
+    Client* client = new Client();
+	client->address = client_addr;
+	client->sockfd = connfd;
+	client->uid = uid++;
+
+	return client;
+}
