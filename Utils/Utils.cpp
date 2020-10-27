@@ -13,3 +13,13 @@ void SendDataToClient(std::string message, SOCKET sockfd) {
 		perror("ERROR: write to descriptor failed");
 	}
 }
+
+vector<string> Split(const string &s, char delim) {
+    stringstream ss(s);
+    string item;
+    vector<string> tokens;
+    while (getline(ss, item, delim)) {
+        tokens.push_back(item);
+    }
+    return tokens;
+}

@@ -10,6 +10,7 @@
 #include <signal.h>
 #include <iostream>
 #include <string>
+#include <vector>
 #include "../Models/Client.h"
 #include "../Utils/Utils.h"
 #include <list>

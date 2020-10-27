@@ -1,3 +1,4 @@
+#include <sstream>
 #include <stdio.h>
 #include <stdlib.h>
 #include "../Server/TcpListener.h"
@@ -7,3 +8,4 @@
 
 int ErrorCheck(int expression, const char* message);
 void SendDataToClient(std::string, SOCKET);
+vector<string> Split(const string &s, char delim);
