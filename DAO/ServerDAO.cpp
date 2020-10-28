@@ -76,3 +76,32 @@ vector<string> ServerDAO::GetClientsIfPendingMessages(string receiver_name) {
     }
     return sender_list;
 }
+
+string ServerDAO::GetCollectionName(string sender, string receiver) {
+   if (sender < receiver)
+       return sender + "_" + receiver;
+   return receiver + "_" + sender;
+}
+
+vector<string> ServerDAO::GetUnseenMessages(string sender_name, string receiver_name) {
+    bsoncxx::document::element sender, receiver, message, seen_status;
+    string collection_name = GetCollectionName(sender_name, receiver_name);
+    auto collection = conn["ChatApplicationDB"][collection_name];
+    vector<string> messagesList;
+    auto cursor = collection.find({});
+        for ( auto&& data : cursor) {
+            sender = data["sender"];
+            receiver = data["receiver"];
+            message = data["message"];
+            seen_status = data["seen_status"];
+            if (string(receiver.get_utf8().value) == receiver_name && string(seen_status.get_utf8().value) == "unseen") {
+                messagesList.push_back(string(message.get_utf8().value));
+                collection.update_one(
+                                    make_document(kvp("sender", sender_name),kvp("receiver", receiver_name),
+                                    kvp("seen_status","unseen")),
+                                    make_document( kvp("$set", make_document(kvp("seen_status", "seen")))));
+            }
+        }
+    
+    return messagesList;
+}

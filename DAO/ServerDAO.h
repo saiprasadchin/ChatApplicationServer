@@ -28,9 +28,11 @@ class ServerDAO
     bsoncxx::builder::stream::document document{};
     vector<string> GetCollections(string);
     string GetSenderName(string, string);
+    string GetCollectionName(string, string);
 public:
     bool IsUserNameAlreadyExits(string);
     void AddClient(string, string);
     bool CheckForValidUserNameAndPassword(string, string);
     vector<string> GetClientsIfPendingMessages(string);
+    vector<string> GetUnseenMessages(string, string);
 };
