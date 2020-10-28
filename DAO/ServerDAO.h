@@ -29,4 +29,5 @@ class ServerDAO
 public:
     bool IsUserNameAlreadyExits(string);
     void AddClient(string, string);
+    bool CheckForValidUserNameAndPassword(string, string);
 };
