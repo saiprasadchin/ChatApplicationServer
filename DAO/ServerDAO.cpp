@@ -105,3 +105,25 @@ vector<string> ServerDAO::GetUnseenMessages(string sender_name, string receiver_
     
     return messagesList;
 }
+
+vector<string> ServerDAO::GetAllMessages(string sender_name, string receiver_name) {
+    string collectionsName = GetCollectionName(sender_name, receiver_name);
+    auto collection = conn["ChatApplicationDB"][collectionsName];
+    auto cursor = collection.find({});
+    bsoncxx::document::element sender, reciever, message;
+    vector<string> messagesList;
+
+    for (auto && data : cursor) {
+        sender = data["sender"];
+        message = data["message"];
+        string all_messages;
+        if (string(sender.get_utf8().value) == sender_name) {
+            all_messages = "\x1B[36m" + string(sender.get_utf8().value) + "\033[0m" + ":" + string(message.get_utf8().value);
+        } else {
+            all_messages = "\033[1;32m" + string("YOU") + "\033[0m" + ":" + string(message.get_utf8().value);
+        }
+        messagesList.push_back(all_messages);
+    }
+
+    return messagesList;
+    }

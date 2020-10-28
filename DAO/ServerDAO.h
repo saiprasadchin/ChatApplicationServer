@@ -35,4 +35,5 @@ public:
     bool CheckForValidUserNameAndPassword(string, string);
     vector<string> GetClientsIfPendingMessages(string);
     vector<string> GetUnseenMessages(string, string);
+    vector<string> GetAllMessages(string, string);
 };
