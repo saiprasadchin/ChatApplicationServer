@@ -7,6 +7,7 @@
 #define AUTHENTICATE "AUTHENTICATE"
 #define UNSEEN_MESSAGES_FROM "UNSEEN_MESSAGES_FROM"
 #define MESSAGES "MESSAGES"
+#define ALL_MESSAGES "ALL_MESSAGES"
 #define INVALID "1"
 #define VALID "0"
 #define sysout(x) std::cout << x << std::endl
@@ -69,6 +70,13 @@ void* HandleTCPClient(void* arg) {
 				vector<string> list = database.GetUnseenMessages(client_data[1], client->name );
 				string all_messages = ConvertListToString( list, "UNSEEN_MESSAGES ");
 				SendDataToClient(all_messages, client->sockfd);
+			}
+
+			if(client_data[0] == ALL_MESSAGES ) {
+				vector<string> list = database.GetAllMessages(client_data[1], client->name);
+				string all_messages = ConvertListToString( list, "ALL_MESSAGES ");
+				SendDataToClient(all_messages, client->sockfd);
+
 			}
 
 			if(client_data[0] == "chat" ) {
