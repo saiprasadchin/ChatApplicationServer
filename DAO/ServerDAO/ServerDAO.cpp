@@ -106,6 +106,23 @@ vector<string> ServerDAO::GetUnseenMessages(string sender_name, string receiver_
     return messagesList;
 }
 
+void ServerDAO::AddMessageToDB(string sender, string receiver, string message, string seen_status) {
+    string collectionName = GetCollectionName(sender, receiver);
+    auto collection = conn["ChatApplicationDB"][collectionName];
+        
+    
+    auto builder = bsoncxx::builder::stream::document{};
+    bsoncxx::document::value document = builder
+            << "sender" << sender
+            << "receiver" << receiver
+            << "message" << message
+            << "seen_status" << seen_status
+            << "time_stamp" << chrono::system_clock::to_time_t(chrono::system_clock::now())
+            << finalize;
+
+    collection.insert_one(document.view());
+}
+
 vector<string> ServerDAO::GetAllMessages(string sender_name, string receiver_name) {
     string collectionsName = GetCollectionName(sender_name, receiver_name);
     auto collection = conn["ChatApplicationDB"][collectionsName];
@@ -126,4 +143,4 @@ vector<string> ServerDAO::GetAllMessages(string sender_name, string receiver_nam
     }
 
     return messagesList;
-    }
+}

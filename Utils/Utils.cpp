@@ -34,3 +34,47 @@ string ConvertListToString(vector<string> clients_list, string flag) {
     }
     return clients;
 }
+
+void OnLineClients(string name , SOCKET socket) {
+	vector<string> clients = GetOnLineClients(name);
+	string online_clients = ConvertListToString(clients, "ONLINE ");
+	SendDataToClient(online_clients, socket);
+}
+
+void StringConcate(string& str, ...) {
+    va_list pArg;
+    va_start(pArg, str);
+    const char *strNext = va_arg(pArg, const char *);
+    while (strNext != NULL) {
+        str += strNext;
+        strNext = va_arg(pArg, const char *);
+    }
+    va_end(pArg);
+}
+
+void* parse(char* buffer, char* message, char* name) {
+
+	int index = 0;
+	int i;
+	if (buffer[0] != '@' ) {
+			name[index] = ' ';
+      		return NULL;
+    }
+	
+	for ( i = 1; i < strlen(buffer); i++) {
+		if(buffer[i] != ' ') {
+			name[index++] = buffer[i];
+		} else {
+			name[index++] = '\0';
+			break;
+		}
+  	}
+	index = 0;
+	i++;
+	for ( ; i < strlen(buffer); i++) {
+		if(buffer[i] != '\0') {
+			message[index++] = buffer[i];
+		}
+  	}	
+	return NULL;
+}

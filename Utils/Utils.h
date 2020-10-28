@@ -1,6 +1,8 @@
 #include <sstream>
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdarg.h>
+#include "../DAO/OnLineDAO/OnLineDAO.h"
 #include "../Server/TcpListener.h"
 
 #define SOCKET int
@@ -10,3 +12,6 @@ int ErrorCheck(int expression, const char* message);
 void SendDataToClient(std::string, SOCKET);
 vector<string> Split(const string &s, char delim);
 string ConvertListToString(vector<string> clients_list, string flag);
+void OnLineClients(string name , SOCKET socket);
+void StringConcate(string& str, ...);
+void* parse(char* buffer, char* message, char* name);

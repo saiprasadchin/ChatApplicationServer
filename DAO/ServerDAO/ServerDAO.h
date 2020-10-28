@@ -36,4 +36,5 @@ public:
     vector<string> GetClientsIfPendingMessages(string);
     vector<string> GetUnseenMessages(string, string);
     vector<string> GetAllMessages(string, string);
+    void AddMessageToDB(string , string , string, string);
 };

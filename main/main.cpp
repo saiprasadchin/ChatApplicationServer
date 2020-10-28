@@ -1,6 +1,6 @@
-#include <iostream>
+#include "../DAO/OnLineDAO/OnLineDAO.h"
 #include "../Server/TcpListener.h"
-#include "../DAO/ServerDAO.h"
+#include "../DAO/ServerDAO/ServerDAO.h"
 
 #define BUFFER_SZ 2048
 #define REGISTER "REGISTER"
@@ -25,6 +25,11 @@ void* HandleTCPClient(void* arg) {
     char buff_out[BUFFER_SZ];
     char message[BUFFER_SZ];
     int leave_flag = 0;
+	char name[32];
+	char pass_word[10];
+	string buffer_to_all = "";
+	string buffer_to_particular = "";
+	string main_buffer = "";
 	Client* client = (Client*)arg;
 
 	while(1) {
@@ -80,16 +85,41 @@ void* HandleTCPClient(void* arg) {
 			}
 
 			if(client_data[0] == "chat" ) {
-				while(true) {
-					if (leave_flag)
+				AddToQueue(client);
+				bzero(buff_out, BUFFER_SZ);
+				while(1) {
+					if (leave_flag) {
 						break;
-								
+					}
 					int receive = recv(client->sockfd, buff_out, BUFFER_SZ, 0);
 					if (receive > 0) {
-						SendDataToClient(buff_out, client->sockfd);
-					} else if (receive == 0 || strcmp(buff_out, "exit") == 0) {
+						if(strcmp(buff_out, "ONLINE") == 0 ) {
+							OnLineClients(client->name, client->sockfd);
+						} else if(strcmp(buff_out, "--help") == 0 ) {
+							SendDataToClient("$", client->sockfd);
+							RemoveQueue(client->name);
+							break;
+						} else {
+							StringConcate(buffer_to_all, client->name.c_str(), " : ", buff_out, NULL);
+							if(strlen(buff_out) > 0) {
+								parse(buff_out, message,name);
+								StringConcate(buffer_to_particular,"\x1B[36m", client->name.c_str(),"\033[0m", " : ", message, NULL);
+								if(name[0] == ' ') { 
+									SendMessage(buffer_to_all.c_str(), client->uid);
+								} else {
+									if(ClientIsOnline(name)) {
+										SendMessageToParticularClient(buffer_to_particular.c_str(), name);
+										database.AddMessageToDB(client->name, name, message, "seen");
+									} else {
+										database.AddMessageToDB(client->name, name, message, "unseen");
+									}
+								}
+							}
+						}	
+					} else if (receive == 0 || strcmp(buff_out, "exit") == 0){
 						sprintf(buff_out, "%s has left", client->name.c_str());
 						sysout(buff_out);
+						SendMessage(buff_out, client->uid);
 						leave_flag = 1;
 					} else {
 						printf("ERROR: -1\n");
@@ -97,11 +127,14 @@ void* HandleTCPClient(void* arg) {
 					}
 					bzero(buff_out, BUFFER_SZ);
 					bzero(message, BUFFER_SZ);
+					buffer_to_all = "";
+					buffer_to_particular = "";
 				}
 			}
 		}
 	}
 	close(client->sockfd);
+    RemoveQueue(client->name);
 	delete client;
 	pthread_detach(pthread_self());
 
