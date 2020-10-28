@@ -25,9 +25,12 @@ class ServerDAO
 {
     mongocxx::instance inst{};
     mongocxx::client conn{mongocxx::uri{}};
-    bsoncxx::builder::stream::document document{}; 
+    bsoncxx::builder::stream::document document{};
+    vector<string> GetCollections(string);
+    string GetSenderName(string, string);
 public:
     bool IsUserNameAlreadyExits(string);
     void AddClient(string, string);
     bool CheckForValidUserNameAndPassword(string, string);
+    vector<string> GetClientsIfPendingMessages(string);
 };

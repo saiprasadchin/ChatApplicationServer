@@ -23,3 +23,14 @@ vector<string> Split(const string &s, char delim) {
     }
     return tokens;
 }
+
+string ConvertListToString(vector<string> clients_list, string flag) {
+    string clients = flag;
+    string temp;
+    for(int i=0; i < clients_list.size(); ++i) {
+        temp = clients_list[i];
+        clients += temp;
+        clients += " ";
+    }
+    return clients;
+}

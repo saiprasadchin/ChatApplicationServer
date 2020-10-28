@@ -5,6 +5,7 @@
 #define BUFFER_SZ 2048
 #define REGISTER "REGISTER"
 #define AUTHENTICATE "AUTHENTICATE"
+#define UNSEEN_MESSAGES_FROM "UNSEEN_MESSAGES_FROM"
 #define INVALID "1"
 #define VALID "0"
 #define sysout(x) std::cout << x << std::endl
@@ -45,6 +46,7 @@ void* HandleTCPClient(void* arg) {
 					SendDataToClient(VALID, client->sockfd);
 				}
 			}
+
 			if(client_data[0] == AUTHENTICATE ) {
 				if(database.CheckForValidUserNameAndPassword(client_data[1], client_data[2])) {
 					SendDataToClient(VALID, client->sockfd);
@@ -55,6 +57,13 @@ void* HandleTCPClient(void* arg) {
 					SendDataToClient(INVALID, client->sockfd);
 				}
 			}
+
+			if(client_data[0] == UNSEEN_MESSAGES_FROM ) {
+				vector<string> sender_list = database.GetClientsIfPendingMessages( client->name );
+				string sender_clients_name = ConvertListToString( sender_list, "UNSEEN_MESSAGES_FROM ");
+				SendDataToClient(sender_clients_name, client->sockfd);
+			}
+
 			if(client_data[0] == "chat" ) {
 				while(true) {
 					if (leave_flag)
@@ -74,7 +83,6 @@ void* HandleTCPClient(void* arg) {
 					bzero(buff_out, BUFFER_SZ);
 					bzero(message, BUFFER_SZ);
 				}
-
 			}
 		}
 	}
