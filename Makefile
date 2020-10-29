@@ -1,0 +1,1 @@
+g++ --std=c++17 -pthread main/main.cpp DAO/ServerDAO/ServerDAO.cpp Utils/Utils.cpp DAO/OnLineDAO/OnLineDAO.cpp Server/TcpListener.cpp -o server $(pkg-config --cflags --libs libmongocxx)

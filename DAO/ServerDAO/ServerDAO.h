@@ -8,6 +8,7 @@
 
 #include <iostream>
 #include <string>
+#include <mutex>
 
 using bsoncxx::builder::stream::close_array;
 using bsoncxx::builder::stream::close_document;

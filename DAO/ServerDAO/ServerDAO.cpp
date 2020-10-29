@@ -1,6 +1,8 @@
 #include "ServerDAO.h"
+std::mutex mutex_lock;
 
 bool ServerDAO::IsUserNameAlreadyExits(string userId) {
+    std::lock_guard<std::mutex> lck (mutex_lock);
     auto collection = conn["ChatApplicationDB"]["user"];
     auto cursor = collection.find({});
     bsoncxx::document::element id;
@@ -14,6 +16,7 @@ bool ServerDAO::IsUserNameAlreadyExits(string userId) {
 }
 
 void ServerDAO::AddClient(string userId, string password) {
+    std::lock_guard<std::mutex> lck (mutex_lock);
     auto collection = conn["ChatApplicationDB"]["user"];
     auto builder = bsoncxx::builder::stream::document{};
     bsoncxx::document::value document = builder
@@ -25,6 +28,7 @@ void ServerDAO::AddClient(string userId, string password) {
 }
 
 bool ServerDAO::CheckForValidUserNameAndPassword(string userId, string pass_word) {
+    std::lock_guard<std::mutex> lck (mutex_lock);
     auto collection = conn["ChatApplicationDB"]["user"];
     auto cursor = collection.find({});
     bsoncxx::document::element id, password;
@@ -41,6 +45,7 @@ bool ServerDAO::CheckForValidUserNameAndPassword(string userId, string pass_word
 }
 
 vector<string> ServerDAO::GetCollections(string name) {
+    std::lock_guard<std::mutex> lck (mutex_lock);
     vector<string> list;
     vector<string> listcoll = conn["ChatApplicationDB"].list_collection_names();
     for( int i = 0; i < listcoll.size(); ++i ) {
@@ -52,6 +57,7 @@ vector<string> ServerDAO::GetCollections(string name) {
 }
 
 string ServerDAO::GetSenderName(string collection_name, string receiver_name) {
+    std::lock_guard<std::mutex> lck (mutex_lock);
     auto collection = conn["ChatApplicationDB"][collection_name];
     auto cursor = collection.find({});
     bsoncxx::document::element seenStatus, sender_name;
@@ -66,6 +72,7 @@ string ServerDAO::GetSenderName(string collection_name, string receiver_name) {
 }
 
 vector<string> ServerDAO::GetClientsIfPendingMessages(string receiver_name) {
+    std::lock_guard<std::mutex> lck (mutex_lock);
     vector<string> sender_list;
     vector<string> cllections_list = GetCollections(receiver_name);
     for( int i = 0; i < cllections_list.size(); ++i ) {
@@ -78,12 +85,14 @@ vector<string> ServerDAO::GetClientsIfPendingMessages(string receiver_name) {
 }
 
 string ServerDAO::GetCollectionName(string sender, string receiver) {
-   if (sender < receiver)
-       return sender + "_" + receiver;
-   return receiver + "_" + sender;
+    std::lock_guard<std::mutex> lck (mutex_lock);
+    if (sender < receiver)
+        return sender + "_" + receiver;
+    return receiver + "_" + sender;
 }
 
 vector<string> ServerDAO::GetUnseenMessages(string sender_name, string receiver_name) {
+    std::lock_guard<std::mutex> lck (mutex_lock);
     bsoncxx::document::element sender, receiver, message, seen_status;
     string collection_name = GetCollectionName(sender_name, receiver_name);
     auto collection = conn["ChatApplicationDB"][collection_name];
@@ -107,6 +116,7 @@ vector<string> ServerDAO::GetUnseenMessages(string sender_name, string receiver_
 }
 
 void ServerDAO::AddMessageToDB(string sender, string receiver, string message, string seen_status) {
+    std::lock_guard<std::mutex> lck (mutex_lock);
     string collectionName = GetCollectionName(sender, receiver);
     auto collection = conn["ChatApplicationDB"][collectionName];
         
@@ -124,6 +134,7 @@ void ServerDAO::AddMessageToDB(string sender, string receiver, string message, s
 }
 
 vector<string> ServerDAO::GetAllMessages(string sender_name, string receiver_name) {
+    std::lock_guard<std::mutex> lck (mutex_lock);
     string collectionsName = GetCollectionName(sender_name, receiver_name);
     auto collection = conn["ChatApplicationDB"][collectionsName];
     auto cursor = collection.find({});
